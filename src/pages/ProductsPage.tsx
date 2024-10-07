@@ -16,6 +16,7 @@ import {
   FunnelIcon,
   Squares2X2Icon,
 } from '@heroicons/react/20/solid'
+import InfiniteScrollObserver from '../components/InfiniteScrollObserver'
 import { getProducts } from '../service/productsApi'
 
 const ITEMS_PER_PAGE = 20
@@ -33,6 +34,7 @@ export default function ProductsPage() {
   const [page, setPage] = useState<number>(1)
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [hasMore, setHasMore] = useState<boolean>(true)
 
   const fetchProducts = async () => {
     setIsLoading(true)
@@ -48,6 +50,9 @@ export default function ProductsPage() {
 
       if (data?.products) {
         setProducts((prevProducts) => [...prevProducts, ...data.products])
+        setHasMore(data.products.length === ITEMS_PER_PAGE)
+      } else {
+        setHasMore(false)
       }
     } catch (error) {
       console.log('Failed to load products')
@@ -65,6 +70,12 @@ export default function ProductsPage() {
     setOrder(order)
     setPage(1)
     setProducts([])
+  }
+
+  const loadMoreProducts = () => {
+    if (!isLoading && hasMore) {
+      setPage((prevPage) => prevPage + 1)
+    }
   }
 
   return (
@@ -177,6 +188,11 @@ export default function ProductsPage() {
                     <ProductItem key={product.id} product={product} />
                   ))}
                 </div>
+
+                {/* Infinite Scroll Observer */}
+                {hasMore && (
+                  <InfiniteScrollObserver onIntersect={loadMoreProducts} />
+                )}
               </div>
             </div>
           </section>
