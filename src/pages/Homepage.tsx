@@ -26,9 +26,12 @@ export default function Homepage() {
           >
             Log In
           </Link>
-          <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
+          <Link
+            to="/products"
+            className="text-sm font-semibold leading-6 text-gray-900"
+          >
             Products <span aria-hidden="true">→</span>
-          </a>
+          </Link>
         </div>
       </div>
     </div>
