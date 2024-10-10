@@ -6,23 +6,26 @@ import Header from './components/Header'
 import PageNotFound from './pages/PageNotFound'
 import ProductsPage from './pages/ProductsPage'
 import { ModalProvider } from './ModalContext'
+import { SnackbarProvider } from './SnackBarContext'
 
 function App() {
   return (
-    <ModalProvider>
-      <Router>
-        <Header />
-        <main className="h-full">
-          <div className="relative isolate">
-            <Routes>
-              <Route path="/" element={<Homepage />} />
-              <Route path="*" element={<PageNotFound />} />
-              <Route path="/products" element={<ProductsPage />} />
-            </Routes>
-          </div>
-        </main>
-      </Router>
-    </ModalProvider>
+    <SnackbarProvider>
+      <ModalProvider>
+        <Router>
+          <Header />
+          <main className="h-full">
+            <div className="relative isolate">
+              <Routes>
+                <Route path="/" element={<Homepage />} />
+                <Route path="*" element={<PageNotFound />} />
+                <Route path="/products" element={<ProductsPage />} />
+              </Routes>
+            </div>
+          </main>
+        </Router>
+      </ModalProvider>
+    </SnackbarProvider>
   )
 }
 
