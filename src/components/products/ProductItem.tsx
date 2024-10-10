@@ -1,5 +1,8 @@
 import React from 'react'
 import { Product } from '../../types/General'
+import { useModal } from '../../ModalContext'
+import AddToCart from '../cart/AddToCart'
+import ProductQuickView from './ProductQuickView'
 
 type Props = {
   product: Product
@@ -8,14 +11,25 @@ type Props = {
 export default function ProductItem({ product }: Props) {
   const productDescription = product.description.slice(0, 100).trim() + '...'
 
+  const { openModal } = useModal()
+
+  const handleOpenModal = () => {
+    openModal(<ProductQuickView product={product} />, product.title, 'center')
+  }
+
   return (
-    <a key={product.id} href="#" className="group text-left">
+    <button
+      onClick={handleOpenModal}
+      key={product.id}
+      className="group text-left"
+      type="button"
+    >
       <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
         <img
           loading="lazy"
           alt={`product-thumbnail-${product.id}`}
           src={product.thumbnail}
-          className="h-full w-full object-cover object-center group-hover:opacity-75 w-[284px] h-[284px]"
+          className="group-hover:opacity-75 w-[284px] h-[284px]"
         />
       </div>
       <h3 className="mt-4 text-lg font-medium text-gray-700">
@@ -25,6 +39,7 @@ export default function ProductItem({ product }: Props) {
       <p className="mt-1 text-lg font-bold text-right text-gray-900">
         ${product.price}
       </p>
-    </a>
+      <AddToCart product={product} />
+    </button>
   )
 }

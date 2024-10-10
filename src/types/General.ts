@@ -6,6 +6,10 @@ export type Product = {
   title: string
   thumbnail: string
   price: string
+  rating: number
+  reviews: string[]
+  availabilityStatus: string
+  shippingInformation: string
 }
 
 export type ProductList = {
