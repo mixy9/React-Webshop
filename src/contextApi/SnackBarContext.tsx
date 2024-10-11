@@ -9,7 +9,7 @@ import UiSnackbar from '../components/ui/UiSnackBar'
 
 export type SnackbarType = 'success' | 'danger' | 'warning' | 'info'
 
-interface SnackbarContextProps {
+type SnackbarContextProps = {
   isOpen: boolean
   message: string
   type: SnackbarType

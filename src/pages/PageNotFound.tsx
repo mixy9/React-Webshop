@@ -1,4 +1,6 @@
-export default function PageNotFound() {
+import { Link } from 'react-router-dom'
+
+const PageNotFound = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen min-h-screen m-auto">
       <p className="text-base font-semibold text-indigo-600">404</p>
@@ -22,3 +24,5 @@ export default function PageNotFound() {
     </div>
   )
 }
+
+export default PageNotFound

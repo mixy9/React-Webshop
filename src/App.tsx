@@ -7,7 +7,7 @@ import PageNotFound from './pages/PageNotFound'
 import ProductsPage from './pages/ProductsPage'
 import { ModalProvider } from './contextApi/ModalContext'
 import { SnackbarProvider } from './contextApi/SnackBarContext'
-import { AuthProvider, useAuth } from './contextApi/AuthContext'
+import AuthProvider, { useAuth } from './contextApi/AuthContext'
 import LoadingSpinner from './components/ui/UiLoadingSpinner'
 
 const AppContent: React.FC = () => {

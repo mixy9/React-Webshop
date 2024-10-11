@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 
 const BOTTOM_FETCH_OFFSET_PERCENTAGE = 0.4 // 40%
 
-interface InfiniteScrollObserverProps {
+type InfiniteScrollObserverProps = {
   onIntersect: () => void
 }
 

@@ -7,7 +7,7 @@ import React, {
 } from 'react'
 import UiModal from '../components/ui/UiModal'
 
-interface ModalContextProps {
+type ModalContextProps = {
   isOpen: boolean
   modalContent: ReactNode | null
   modalTitle: string | null

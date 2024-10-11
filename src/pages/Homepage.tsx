@@ -5,7 +5,7 @@ import Login from '../components/LogIn'
 import { useModal } from '../contextApi/ModalContext'
 import { useAuth } from '../contextApi/AuthContext'
 
-export default function Homepage() {
+const Homepage = () => {
   const { openModal } = useModal()
   const { user } = useAuth()
 
@@ -14,13 +14,13 @@ export default function Homepage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl flex flex-col items-center justify-center h-screen min-h-screen m-auto">
+    <div className="mx-auto max-w-2xl flex flex-col items-center justify-center h-[calc(100vh-98px)] m-auto">
       <div className="hidden sm:mb-8 sm:flex sm:justify-center">
         <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
           Nullam vulputate est vel risus dictum semper id ac nulla
         </div>
       </div>
-      <div className="text-center">
+      <div className="text-center px-14">
         <h1 className="text-balance text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
           Lorem ipsum dolor sit amet
         </h1>
@@ -42,3 +42,5 @@ export default function Homepage() {
     </div>
   )
 }
+
+export default Homepage

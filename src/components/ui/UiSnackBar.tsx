@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, FC } from 'react'
 import { Transition } from '@headlessui/react'
-import { SnackbarType } from '../../SnackBarContext'
+import { SnackbarType } from '../../contextApi/SnackBarContext'
 import {
   InformationCircleIcon,
   CheckBadgeIcon,
@@ -8,7 +8,7 @@ import {
   XCircleIcon,
 } from '@heroicons/react/24/outline'
 
-interface SnackbarProps {
+type SnackbarProps = {
   message: string
   type: SnackbarType
   isOpen: boolean
