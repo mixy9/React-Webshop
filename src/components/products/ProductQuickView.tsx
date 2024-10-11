@@ -1,6 +1,7 @@
 import { StarIcon } from '@heroicons/react/20/solid'
 import { Product } from '../../types/General'
-import { FC } from 'react'
+import React, { FC } from 'react'
+import AddToCart from '../cart/AddToCart'
 
 type Props = {
   product: Product
@@ -76,7 +77,8 @@ const ProductQuickView: FC<Props> = ({ product }: Props) => {
           <p className="mt-4 text-sm text-gray-800 leading-6">
             {product.shippingInformation}
           </p>
-          {/*Add to cart*/}
+
+          <AddToCart product={product} />
         </section>
       </div>
     </div>

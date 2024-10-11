@@ -20,7 +20,7 @@ const UiButton: FC<UiButtonProps> = ({
     type={type}
     disabled={isDisabled}
     className={`text-md w-${width} rounded-md bg-cyan-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cyan-500
-                focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-600 disabled:pointer-events-none`}
+                focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-600 disabled:pointer-events-none disabled:opacity-50`}
   >
     {children}
   </button>

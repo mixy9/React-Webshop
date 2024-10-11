@@ -5,7 +5,7 @@ import React, {
   ReactNode,
   FC,
 } from 'react'
-import UiSnackbar from './components/ui/UiSnackBar'
+import UiSnackbar from '../components/ui/UiSnackBar'
 
 export type SnackbarType = 'success' | 'danger' | 'warning' | 'info'
 

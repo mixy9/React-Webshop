@@ -5,7 +5,7 @@ import React, {
   ReactNode,
   FC,
 } from 'react'
-import UiModal from './components/ui/UiModal'
+import UiModal from '../components/ui/UiModal'
 
 interface ModalContextProps {
   isOpen: boolean

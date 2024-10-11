@@ -10,6 +10,7 @@ export type Product = {
   reviews: string[]
   availabilityStatus: string
   shippingInformation: string
+  userId?: number
 }
 
 export type ProductList = {
@@ -31,7 +32,7 @@ export type PriceRange = {
 }
 
 export type User = {
-  userId: number
+  id: number
   username: string
   password: string
   email: string
