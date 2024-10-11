@@ -29,3 +29,10 @@ export type PriceRange = {
   min: number
   max: number
 }
+
+export type User = {
+  userId: number
+  username: string
+  password: string
+  email: string
+}

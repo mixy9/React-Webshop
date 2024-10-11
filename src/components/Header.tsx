@@ -1,25 +1,44 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { useModal } from '../contextApi/ModalContext'
+import { ShoppingCartIcon, UserCircleIcon } from '@heroicons/react/24/outline'
+import Login from './LogIn'
+import { useAuth } from '../contextApi/AuthContext'
+import UiButton from './ui/UiButton'
 
 const navigation = [
   { name: 'Products', route: '/products' },
-  { name: 'Features', route: '#' },
-  { name: 'Marketplace', route: '#' },
-  { name: 'Company', route: '#' },
+  { name: 'Shopping Cart', route: '#' },
+  { name: 'User Profile', route: '#' },
 ]
 
 export default function Header() {
+  const { openModal } = useModal()
+  const location = useLocation()
+
+  const { user, logout } = useAuth()
+
+  const isHomepage = location.pathname === '/'
+
+  function openLoginModal() {
+    openModal(<Login />, '', 'center')
+  }
+
   return (
-    <header className="absolute inset-x-0 top-0 z-50">
+    <header className="sticky top-0 z-20 hover:bg-opacity-100 bg-white bg-opacity-80 transition-all">
       <nav
         aria-label="Global"
-        className="flex items-center justify-between p-6 lg:px-8"
+        className="flex items-center justify-between p-6 lg:px-8 border-b border-gray-200"
       >
-        <div className="flex lg:flex-1">
-          <a href="/" className="-m-1.5 p-1.5">
+        <div className={`${isHomepage ? 'flex flex-1' : 'flex'}`}>
+          <Link to="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Your Company</span>
-            <img src="/logo.svg" alt="logo" className="h-8 w-auto" />
-          </a>
+            <img
+              src={isHomepage ? '/logo.svg' : '/logo-icon.svg'}
+              alt="logo"
+              className="h-8 w-auto"
+            />
+          </Link>
         </div>
         <div className="flex lg:hidden">
           <button
@@ -40,14 +59,27 @@ export default function Header() {
             </Link>
           ))}
         </div>
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <Link
-            to="/"
-            className="rounded-md px-3.5 py-2.5 text-sm font-semibold text-balance shadow-sm border-solid border-2 border-cyan-500
-                focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-500"
-          >
-            Log In
-          </Link>
+
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end divide-x">
+          {user ? (
+            <>
+              <button type="button">
+                <ShoppingCartIcon
+                  aria-hidden="true"
+                  className="h-6 w-6 text-gray-500 hover:text-cyan-600 mx-4"
+                />
+              </button>
+              <button type="button">
+                <UserCircleIcon
+                  onClick={logout}
+                  aria-hidden="true"
+                  className="h-6 w-6 text-gray-500 hover:text-cyan-600 mx-4"
+                />
+              </button>
+            </>
+          ) : (
+            <UiButton clickEvent={openLoginModal}>Log In</UiButton>
+          )}
         </div>
       </nav>
     </header>

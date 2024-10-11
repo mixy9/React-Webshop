@@ -11,10 +11,14 @@ import {
   logout as logoutService,
   getCurrentUser,
 } from '../service/authService'
+import { User } from '../types/General'
 
-interface AuthContextType {
-  user: any
-  login: (username: string, password: string) => Promise<void>
+type AuthContextType = {
+  user: User | null
+  login: (
+    username: User['username'],
+    password: User['password']
+  ) => Promise<void>
   logout: () => void
   loading: boolean
 }
@@ -26,7 +30,7 @@ type Props = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider: FC<Props> = ({ children }: Props) => {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -46,7 +50,10 @@ export const AuthProvider: FC<Props> = ({ children }: Props) => {
     checkUser()
   }, [])
 
-  const login = async (username: string, password: string) => {
+  const login = async (
+    username: User['username'],
+    password: User['password']
+  ) => {
     setLoading(true)
     try {
       await loginService(username, password)

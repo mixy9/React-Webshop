@@ -1,7 +1,18 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import UiButton from '../components/ui/UiButton'
+import Login from '../components/LogIn'
+import { useModal } from '../contextApi/ModalContext'
+import { useAuth } from '../contextApi/AuthContext'
 
 export default function Homepage() {
+  const { openModal } = useModal()
+  const { user } = useAuth()
+
+  function openLoginModal() {
+    openModal(<Login />, '', 'center')
+  }
+
   return (
     <div className="mx-auto max-w-2xl flex flex-col items-center justify-center h-screen min-h-screen m-auto">
       <div className="hidden sm:mb-8 sm:flex sm:justify-center">
@@ -19,13 +30,7 @@ export default function Homepage() {
           aliqua.
         </p>
         <div className="mt-10 flex items-center justify-center gap-x-6">
-          <Link
-            to="/"
-            className="rounded-md bg-cyan-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cyan-600
-                focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-600"
-          >
-            Log In
-          </Link>
+          {!user && <UiButton clickEvent={openLoginModal}>Log In</UiButton>}
           <Link
             to="/products"
             className="text-sm font-semibold leading-6 text-gray-900"
