@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, ChangeEvent } from 'react'
 import ProductItem from '../components/products/ProductItem'
-import { PriceRange, Product, ProductList } from '../types/General'
+import { Filters, PriceRange, Product, ProductList } from '../types/General'
 import { Squares2X2Icon } from '@heroicons/react/20/solid'
 import ProductFilters from '../components/products/ProductFilters'
 import InfiniteScrollObserver from '../components/InfiniteScrollObserver'
@@ -8,10 +8,11 @@ import { getProducts, searchProducts } from '../service/productsApi'
 import ProductSorting from '../components/products/ProductSorting'
 import useDebounce from '../hooks/useDebounce'
 import ProductItemSkeleton from '../components/products/ProductItemSkeleton'
+import { getProductsByCategory } from '../service/categoriesApi'
 
 const ITEMS_PER_PAGE = 20
 
-export default function ProductsPage() {
+const ProductsPage = () => {
   const [page, setPage] = useState<number>(1)
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -29,6 +30,7 @@ export default function ProductsPage() {
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
+  // TODO: filter products by price range
   const fetchProducts = useCallback(async () => {
     setIsLoading(true)
 
@@ -36,16 +38,22 @@ export default function ProductsPage() {
       let data: ProductList | undefined
 
       if (debouncedSearchQuery) {
-        data = await searchProducts(debouncedSearchQuery)
-      } else {
-        data = await getProducts(
+        data = await searchProducts(debouncedSearchQuery as string)
+      } else if (filters.category) {
+        data = await getProductsByCategory(
           page,
           ITEMS_PER_PAGE,
           sorting.sortBy,
           sorting.order,
-          filters.priceRange?.min,
-          filters.priceRange?.max,
           filters.category
+        )
+      } else {
+        setSearchQuery('')
+        data = await getProducts(
+          page,
+          ITEMS_PER_PAGE,
+          sorting.sortBy,
+          sorting.order
         )
       }
 
@@ -65,7 +73,7 @@ export default function ProductsPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [debouncedSearchQuery, filters, sorting, page])
+  }, [debouncedSearchQuery, filters.category, sorting, page])
 
   useEffect(() => {
     fetchProducts()
@@ -83,7 +91,7 @@ export default function ProductsPage() {
     setPage(1)
   }
 
-  const handleFiltersChange = (category?: string, priceRange?: PriceRange) => {
+  const handleFiltersChange = ({ category, priceRange }: Filters) => {
     setFilters({ category, priceRange })
     setPage(1)
     setSearchQuery('')
@@ -97,12 +105,12 @@ export default function ProductsPage() {
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-24">
+        <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-14 flex-wrap gap-8">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900">
             Products
           </h1>
 
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-8 flex-wrap">
             <input
               type="text"
               onChange={handleSearchQueryChange}
@@ -110,7 +118,7 @@ export default function ProductsPage() {
               placeholder="Search products..."
               className="block w-full rounded-md border-0 py-1.5 pl-3 pr-20 text-gray-900
                 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2
-                focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 w-[240px]"
             />
             <ProductSorting handleSortChange={handleSortChange} />
             <button
@@ -140,6 +148,9 @@ export default function ProductsPage() {
                 {isLoading &&
                   [1, 2, 3, 4].map((key) => <ProductItemSkeleton key={key} />)}
               </div>
+              {products.length === 0 && (
+                <div className="text-center">No data</div>
+              )}
 
               {hasMore && !isLoading && (
                 <InfiniteScrollObserver onIntersect={loadMoreProducts} />
@@ -151,3 +162,5 @@ export default function ProductsPage() {
     </div>
   )
 }
+
+export default ProductsPage

@@ -5,11 +5,11 @@ import {
   DisclosurePanel,
 } from '@headlessui/react'
 import { MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
-import { Category, PriceRange } from '../../types/General'
+import { Category, Filters, PriceRange } from '../../types/General'
 import { getCategories } from '../../service/categoriesApi'
 
 type Props = {
-  onFilterChange: (category: string, priceRange: PriceRange) => void
+  onFilterChange: ({ category, priceRange }: Filters) => void
 }
 
 export default function ProductFilters({ onFilterChange }: Props) {
@@ -17,22 +17,19 @@ export default function ProductFilters({ onFilterChange }: Props) {
   const [priceRange, setPriceRange] = useState<PriceRange>({ min: 0, max: 0 })
   const [selectedCategory, setSelectedCategory] = useState<string>('')
 
+  const defaultCategoryAll = {
+    slug: '',
+    name: 'All',
+    url: '',
+  } as const
+
   const fetchCategories = async () => {
     try {
       const data = await getCategories()
-      if (data)
-        setCategories([
-          {
-            slug: '',
-            name: 'All',
-            url: '',
-          },
-          ...data,
-        ])
+      if (data) setCategories([defaultCategoryAll, ...data])
     } catch (error) {
       console.log('Failed to load categories')
     }
-    console.log('aaa')
   }
 
   useEffect(() => {
@@ -44,16 +41,23 @@ export default function ProductFilters({ onFilterChange }: Props) {
     type: 'min' | 'max'
   ) => {
     const value = parseFloat(e.target.value)
-    setPriceRange((prev) => ({
-      ...prev,
-      [type]: value,
-    }))
-    onFilterChange(selectedCategory, { ...priceRange, [type]: value })
+
+    if (!isNaN(value)) {
+      setPriceRange((prev: PriceRange) => ({
+        ...prev,
+        [type]: value,
+      }))
+      onFilterChange({
+        priceRange: { ...priceRange, [type]: value },
+      })
+    }
   }
 
   const onCategoryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSelectedCategory(e.target.value)
-    onFilterChange(e.target.value, priceRange)
+    onFilterChange({
+      category: e.target.value,
+    })
   }
 
   return (
@@ -130,9 +134,11 @@ export default function ProductFilters({ onFilterChange }: Props) {
                 name="price-min"
                 type="number"
                 value={priceRange.min}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  onPriceChange(e, 'min')
-                }
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  if (e.target.value.length <= 6) {
+                    onPriceChange(e, 'min')
+                  }
+                }}
                 className="block w-full rounded-md border-0 py-1.5 pl-7 pr-4 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
@@ -148,9 +154,11 @@ export default function ProductFilters({ onFilterChange }: Props) {
                 name="price-max"
                 type="number"
                 value={priceRange.max}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  onPriceChange(e, 'max')
-                }
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  if (e.target.value.length <= 6) {
+                    onPriceChange(e, 'max')
+                  }
+                }}
                 className="block w-full rounded-md border-0 py-1.5 pl-7 pr-4 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>

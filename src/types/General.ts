@@ -40,3 +40,8 @@ export type User = {
   lastName: string
   image: string
 }
+
+export type Filters = {
+  category?: string
+  priceRange?: PriceRange
+}
