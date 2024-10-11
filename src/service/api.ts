@@ -10,18 +10,37 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
+    const token = localStorage.getItem('accessToken')
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
     return config
   },
-  (error) => {
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
 api.interceptors.response.use(
-  (response) => {
-    return response
-  },
-  (error) => {
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+      const refreshToken = localStorage.getItem('refreshToken')
+      if (refreshToken) {
+        try {
+          const { data } = await axios.post(
+            `${process.env.REACT_APP_URL}/auth/refresh`,
+            { token: refreshToken }
+          )
+          localStorage.setItem('accessToken', data.accessToken)
+          originalRequest.headers['Authorization'] =
+            `Bearer ${data.accessToken}`
+          return api(originalRequest)
+        } catch (e) {
+          console.error('Token refresh failed', e)
+        }
+      }
+    }
     return Promise.reject(error)
   }
 )

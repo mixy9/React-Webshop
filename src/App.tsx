@@ -5,27 +5,45 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import Header from './components/Header'
 import PageNotFound from './pages/PageNotFound'
 import ProductsPage from './pages/ProductsPage'
-import { ModalProvider } from './ModalContext'
-import { SnackbarProvider } from './SnackBarContext'
+import { ModalProvider } from './contextApi/ModalContext'
+import { SnackbarProvider } from './contextApi/SnackBarContext'
+import { AuthProvider, useAuth } from './contextApi/AuthContext'
+import LoadingSpinner from './components/ui/UiLoadingSpinner'
+
+const AppContent: React.FC = () => {
+  const { loading } = useAuth()
+
+  if (loading) {
+    return <LoadingSpinner />
+  }
+
+  return (
+    <>
+      <Header />
+      <main className="h-full">
+        <div className="relative isolate">
+          <Routes>
+            <Route path="/" element={<Homepage />} />
+            <Route path="*" element={<PageNotFound />} />
+            <Route path="/products" element={<ProductsPage />} />
+          </Routes>
+        </div>
+      </main>
+    </>
+  )
+}
 
 function App() {
   return (
-    <SnackbarProvider>
-      <ModalProvider>
-        <Router>
-          <Header />
-          <main className="h-full">
-            <div className="relative isolate">
-              <Routes>
-                <Route path="/" element={<Homepage />} />
-                <Route path="*" element={<PageNotFound />} />
-                <Route path="/products" element={<ProductsPage />} />
-              </Routes>
-            </div>
-          </main>
-        </Router>
-      </ModalProvider>
-    </SnackbarProvider>
+    <AuthProvider>
+      <SnackbarProvider>
+        <ModalProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </ModalProvider>
+      </SnackbarProvider>
+    </AuthProvider>
   )
 }
 
