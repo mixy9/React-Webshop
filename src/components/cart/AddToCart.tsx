@@ -30,8 +30,8 @@ const AddToCart: FC<Props> = ({ product }: Props) => {
     openModal(<Login />, '', 'center')
   }
 
-  // can also be implemented using the Context API to track the addition of items to the cart, monitor the state of
-  // the button, or add a badge displaying the number of items in the cart
+  // can also be implemented using the Context API in this case to track the addition of items to the cart, monitor
+  // the state of the button, or add a badge displaying the number of items in the cart
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
 

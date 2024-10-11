@@ -8,6 +8,10 @@ const api = axios.create({
   },
 })
 
+// Using localStorage to store authentication tokens (like accessToken and refreshToken) is not ideal for several
+// important security reasons. However, I'll use it in this case of working with the DummyJSON API because DummyJSON
+// does not support Secure Cookies
+// To use cookies securely, the server should be able to set cookies with the HttpOnly and Secure flags
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken')

@@ -8,6 +8,7 @@ type UiButtonProps = {
   clickEvent?: (e: React.MouseEvent<HTMLButtonElement>) => void
 }
 
+// UI component developed for the purposes of this project
 const UiButton: FC<UiButtonProps> = ({
   children,
   width = 'auto',
