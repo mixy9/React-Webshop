@@ -1,10 +1,11 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useModal } from '../contextApi/ModalContext'
-import { ShoppingCartIcon, UserCircleIcon } from '@heroicons/react/24/outline'
+import { ShoppingCartIcon } from '@heroicons/react/24/outline'
 import Login from './LogIn'
 import { useAuth } from '../contextApi/AuthContext'
 import UiButton from './ui/UiButton'
+import UserInfoDropdown from './UserInfoDropdown'
 
 const navigation = [
   { name: 'Products', route: '/products' },
@@ -16,7 +17,7 @@ export default function Header() {
   const { openModal } = useModal()
   const location = useLocation()
 
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
 
   const isHomepage = location.pathname === '/'
 
@@ -69,13 +70,7 @@ export default function Header() {
                   className="h-6 w-6 text-gray-500 hover:text-cyan-600 mx-4"
                 />
               </button>
-              <button type="button">
-                <UserCircleIcon
-                  onClick={logout}
-                  aria-hidden="true"
-                  className="h-6 w-6 text-gray-500 hover:text-cyan-600 mx-4"
-                />
-              </button>
+              <UserInfoDropdown />
             </>
           ) : (
             <UiButton clickEvent={openLoginModal}>Log In</UiButton>

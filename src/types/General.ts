@@ -5,7 +5,7 @@ export type Product = {
   category: string
   title: string
   thumbnail: string
-  price: string
+  price: number
   rating: number
   reviews: string[]
   availabilityStatus: string
@@ -35,4 +35,7 @@ export type User = {
   username: string
   password: string
   email: string
+  firstName: string
+  lastName: string
+  image: string
 }

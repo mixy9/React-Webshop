@@ -1,28 +1,52 @@
 import api from './api'
+import { User } from '../types/General'
 
-export async function login(username: string, password: string) {
+type LoginResponse = User & {
+  accessToken: string
+  refreshToken: string
+}
+
+export async function login(
+  username: string,
+  password: string,
+  expiresInMins = 60
+): Promise<User | undefined> {
   try {
-    const { data } = await api.post('/auth/login', { username, password })
-    localStorage.setItem('accessToken', data.accessToken)
-    localStorage.setItem('refreshToken', data.refreshToken)
-    return data
+    const response = await api.post<LoginResponse>('/auth/login', {
+      username,
+      password,
+      expiresInMins,
+    })
+
+    const { accessToken, refreshToken, ...user } = response.data
+
+    // save tokens in local storage for this project
+    localStorage.setItem('accessToken', accessToken)
+    localStorage.setItem('refreshToken', refreshToken)
+
+    return user
   } catch (error) {
-    console.error('Login failed', error)
+    console.error('Login failed:', error)
     throw error
   }
 }
 
-export async function getCurrentUser() {
+export async function logout(): Promise<void> {
   try {
-    const { data } = await api.get('/users')
-    return data
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
   } catch (error) {
-    console.error('Fetching current user failed', error)
+    console.error('Logout failed:', error)
     throw error
   }
 }
 
-export function logout() {
-  localStorage.removeItem('accessToken')
-  localStorage.removeItem('refreshToken')
+export async function getCurrentUser(): Promise<User | undefined> {
+  try {
+    const response = await api.get<User>('/auth/me')
+    return response.data
+  } catch (error) {
+    console.error('Fetching current user failed:', error)
+    throw error
+  }
 }

@@ -1,16 +1,11 @@
 import React, {
   createContext,
-  useContext,
   useState,
   useEffect,
   ReactNode,
-  FC,
+  useContext,
 } from 'react'
-import {
-  login as loginService,
-  logout as logoutService,
-  getCurrentUser,
-} from '../service/authService'
+import { getCurrentUser, login, logout } from '../service/authService'
 import { User } from '../types/General'
 
 type AuthContextType = {
@@ -29,51 +24,49 @@ type Props = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export const AuthProvider: FC<Props> = ({ children }: Props) => {
+const AuthProvider: React.FC<Props> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    const checkUser = async () => {
-      const token = localStorage.getItem('accessToken')
-      if (token) {
-        try {
-          const userData = await getCurrentUser()
-          setUser(userData)
-        } catch (error) {
-          console.log('User fetching failed after page refresh')
-        }
+    const initializeAuth = async () => {
+      try {
+        const currentUser = await getCurrentUser()
+        setUser(currentUser || null)
+      } catch (error) {
+        setUser(null)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
-    checkUser()
+    initializeAuth()
   }, [])
 
-  const login = async (
-    username: User['username'],
-    password: User['password']
-  ) => {
-    setLoading(true)
+  const handleLogin = async (username: string, password: string) => {
     try {
-      await loginService(username, password)
-      const userData = await getCurrentUser()
-      setUser(userData)
+      const loggedInUser = await login(username, password)
+      setUser(loggedInUser || null)
     } catch (error) {
-      console.error('Login failed', error)
-    } finally {
-      setLoading(false)
+      setUser(null)
+      throw error
     }
   }
 
-  const logout = () => {
-    logoutService()
-    setUser(null)
+  const handleLogout = async () => {
+    try {
+      await logout()
+      setUser(null)
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {children}
+    <AuthContext.Provider
+      value={{ user, loading, login: handleLogin, logout: handleLogout }}
+    >
+      {!loading && children}
     </AuthContext.Provider>
   )
 }
@@ -85,3 +78,5 @@ export function useAuth() {
   }
   return context
 }
+
+export default AuthProvider

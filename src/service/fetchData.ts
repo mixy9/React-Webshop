@@ -1,4 +1,4 @@
-import api from './service/api'
+import api from './api'
 
 export async function fetchData<T>(
   url: string,
