@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, ChangeEvent } from 'react'
 import ProductItem from '../components/products/ProductItem'
-import { Filters, PriceRange, Product, ProductList } from '../types/General'
+import { PriceRange, Product, ProductList } from '../types/General'
 import { Squares2X2Icon } from '@heroicons/react/20/solid'
 import ProductFilters from '../components/products/ProductFilters'
 import InfiniteScrollObserver from '../components/InfiniteScrollObserver'
@@ -10,7 +10,7 @@ import useDebounce from '../hooks/useDebounce'
 import ProductItemSkeleton from '../components/products/ProductItemSkeleton'
 import { getProductsByCategory } from '../service/categoriesApi'
 
-const ITEMS_PER_PAGE = 20
+const ITEMS_PER_PAGE = 17
 
 const ProductsPage = () => {
   const [page, setPage] = useState<number>(1)
@@ -19,10 +19,8 @@ const ProductsPage = () => {
   const [hasMore, setHasMore] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  const [filters, setFilters] = useState<{
-    category?: string
-    priceRange?: PriceRange
-  }>({})
+  const [category, setCategory] = useState<string | undefined>(undefined)
+  const [priceRange, setPriceRange] = useState<PriceRange | null>(null)
 
   const [sorting, setSorting] = useState<{ sortBy?: string; order?: string }>(
     {}
@@ -30,7 +28,6 @@ const ProductsPage = () => {
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
-  // TODO: filter products by price range
   const fetchProducts = useCallback(async () => {
     setIsLoading(true)
 
@@ -39,13 +36,13 @@ const ProductsPage = () => {
 
       if (debouncedSearchQuery) {
         data = await searchProducts(debouncedSearchQuery as string)
-      } else if (filters.category) {
+      } else if (category) {
         data = await getProductsByCategory(
           page,
           ITEMS_PER_PAGE,
           sorting.sortBy,
           sorting.order,
-          filters.category
+          category
         )
       } else {
         setSearchQuery('')
@@ -61,7 +58,10 @@ const ProductsPage = () => {
         setProducts((prevProducts) =>
           page === 1 ? data!.products : [...prevProducts, ...data!.products]
         )
-        setHasMore(data.products.length === ITEMS_PER_PAGE)
+        setHasMore(
+          data.products.length === ITEMS_PER_PAGE &&
+            data.total > data.products.length
+        )
       } else {
         if (page === 1) {
           setProducts([])
@@ -73,7 +73,7 @@ const ProductsPage = () => {
     } finally {
       setIsLoading(false)
     }
-  }, [debouncedSearchQuery, filters.category, sorting, page])
+  }, [debouncedSearchQuery, category, sorting, page])
 
   useEffect(() => {
     fetchProducts()
@@ -91,16 +91,25 @@ const ProductsPage = () => {
     setPage(1)
   }
 
-  const handleFiltersChange = ({ category, priceRange }: Filters) => {
-    setFilters({ category, priceRange })
+  const handleCategoryChange = (value: string) => {
+    setCategory(value)
     setPage(1)
     setSearchQuery('')
+  }
+
+  const handlePriceChange = (value: PriceRange) => {
+    setPriceRange(value)
   }
 
   const handleSearchQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
     setPage(1)
   }
+
+  const filteredProducts = products.filter((product) => {
+    if (!priceRange?.min || !priceRange?.max) return true
+    return product.price >= priceRange.min && product.price <= priceRange.max
+  })
 
   return (
     <div className="bg-white">
@@ -110,7 +119,7 @@ const ProductsPage = () => {
             Products
           </h1>
 
-          <div className="flex items-center gap-8 flex-wrap">
+          <div className="flex items-center gap-8 flex-wrap md:flex-nowrap">
             <input
               type="text"
               onChange={handleSearchQueryChange}
@@ -118,7 +127,7 @@ const ProductsPage = () => {
               placeholder="Search products..."
               className="block w-full rounded-md border-0 py-1.5 pl-3 pr-20 text-gray-900
                 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2
-                focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 w-[200px]"
+                focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 w-auto"
             />
             <ProductSorting handleSortChange={handleSortChange} />
             <button
@@ -137,22 +146,24 @@ const ProductsPage = () => {
           </h2>
 
           <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
-            <ProductFilters onFilterChange={handleFiltersChange} />
+            <ProductFilters
+              onCategoryChange={handleCategoryChange}
+              onPriceChange={handlePriceChange}
+            />
 
             <div className="lg:col-span-3">
               <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
-                {products &&
-                  products.map((product) => (
-                    <ProductItem key={product.id} product={product} />
-                  ))}
+                {filteredProducts.map((product) => (
+                  <ProductItem key={product.id} product={product} />
+                ))}
                 {isLoading &&
                   [1, 2, 3, 4].map((key) => <ProductItemSkeleton key={key} />)}
               </div>
-              {products.length === 0 && (
+              {filteredProducts.length === 0 && !isLoading && (
                 <div className="text-center">No data</div>
               )}
 
-              {hasMore && !isLoading && (
+              {hasMore && !isLoading && !priceRange?.max && (
                 <InfiniteScrollObserver onIntersect={loadMoreProducts} />
               )}
             </div>

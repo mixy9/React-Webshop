@@ -3,7 +3,7 @@ import { Dialog, DialogPanel, DialogTitle, Transition } from '@headlessui/react'
 import { useModal } from '../../contextApi/ModalContext'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 
-type Props = {
+type UiModalProps = {
   title?: string | null
   position?: 'center' | 'right' | 'left'
 }
@@ -15,7 +15,10 @@ const positionClasses = {
   left: 'absolute inset-y-0 left-0 flex max-w-full pr-10 max-h-screen',
 }
 
-const UiModal: FC<Props> = ({ title, position = 'center' }: Props) => {
+const UiModal: FC<UiModalProps> = ({
+  title,
+  position = 'center',
+}: UiModalProps) => {
   const { isOpen, modalContent, closeModal } = useModal()
 
   return (

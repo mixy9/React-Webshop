@@ -1,20 +1,25 @@
-import React, { useState, useEffect, ChangeEvent } from 'react'
+import React, { useState, useEffect, ChangeEvent, FC } from 'react'
 import {
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
 } from '@headlessui/react'
 import { MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
-import { Category, Filters, PriceRange } from '../../types/General'
+import { Category, PriceRange } from '../../types/General'
 import { getCategories } from '../../service/categoriesApi'
+import UiButton from '../ui/UiButton'
 
-type Props = {
-  onFilterChange: ({ category, priceRange }: Filters) => void
+type ProductFiltersProps = {
+  onCategoryChange: (value: string) => void
+  onPriceChange: (value: PriceRange) => void
 }
 
-export default function ProductFilters({ onFilterChange }: Props) {
+const ProductFilters: FC<ProductFiltersProps> = ({
+  onCategoryChange,
+  onPriceChange,
+}: ProductFiltersProps) => {
   const [categories, setCategories] = useState<Category[] | null>(null)
-  const [priceRange, setPriceRange] = useState<PriceRange>({ min: 0, max: 0 })
+  const [priceRange, setPriceRange] = useState<PriceRange | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string>('')
 
   const defaultCategoryAll = {
@@ -36,28 +41,42 @@ export default function ProductFilters({ onFilterChange }: Props) {
     fetchCategories()
   }, [])
 
-  const onPriceChange = (
+  const handlePriceChange = (
     e: ChangeEvent<HTMLInputElement>,
     type: 'min' | 'max'
   ) => {
-    const value = parseFloat(e.target.value)
+    const value = parseInt(e.target.value, 10)
 
-    if (!isNaN(value)) {
-      setPriceRange((prev: PriceRange) => ({
-        ...prev,
-        [type]: value,
-      }))
-      onFilterChange({
-        priceRange: { ...priceRange, [type]: value },
+    // Ensure the value is a positive whole number
+    if (!isNaN(value) && value > 0) {
+      setPriceRange((prev: PriceRange | null) => {
+        // Ensure that min and max are always numbers, defaulting to 0 if undefined
+        const min = type === 'min' ? value : (prev?.min ?? 0)
+        const max = type === 'max' ? value : (prev?.max ?? 0)
+
+        const updatedPriceRange: PriceRange = {
+          min,
+          max,
+        }
+
+        // Ensure that min and max make sense before calling onPriceChange
+        if (updatedPriceRange.min <= updatedPriceRange.max) {
+          onPriceChange(updatedPriceRange)
+        }
+
+        return updatedPriceRange
       })
     }
   }
 
-  const onCategoryChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleCategoryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSelectedCategory(e.target.value)
-    onFilterChange({
-      category: e.target.value,
-    })
+    onCategoryChange(e.target.value)
+  }
+
+  const resetPriceRange = () => {
+    setPriceRange(null)
+    onPriceChange({ min: 0, max: 0 }) // Reset the price range to initial state
   }
 
   return (
@@ -92,7 +111,7 @@ export default function ProductFilters({ onFilterChange }: Props) {
                     id={`filter-category-${index}`}
                     name={`category[]`}
                     type="radio"
-                    onChange={onCategoryChange}
+                    onChange={handleCategoryChange}
                     className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                   />
                   <label
@@ -133,12 +152,13 @@ export default function ProductFilters({ onFilterChange }: Props) {
                 id="price-min"
                 name="price-min"
                 type="number"
-                value={priceRange.min}
+                value={priceRange?.min || ''}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   if (e.target.value.length <= 6) {
-                    onPriceChange(e, 'min')
+                    handlePriceChange(e, 'min')
                   }
                 }}
+                placeholder="Min"
                 className="block w-full rounded-md border-0 py-1.5 pl-7 pr-4 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
@@ -153,18 +173,30 @@ export default function ProductFilters({ onFilterChange }: Props) {
                 id="price-max"
                 name="price-max"
                 type="number"
-                value={priceRange.max}
+                value={priceRange?.max || ''}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   if (e.target.value.length <= 6) {
-                    onPriceChange(e, 'max')
+                    handlePriceChange(e, 'max')
                   }
                 }}
+                placeholder="Max"
                 className="block w-full rounded-md border-0 py-1.5 pl-7 pr-4 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
+          </div>
+          <div className="mt-4">
+            <UiButton
+              clickEvent={resetPriceRange}
+              isDisabled={!priceRange?.min && !priceRange?.max}
+              width="full"
+            >
+              Reset
+            </UiButton>
           </div>
         </DisclosurePanel>
       </Disclosure>
     </form>
   )
 }
+
+export default ProductFilters

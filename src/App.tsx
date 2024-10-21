@@ -5,10 +5,11 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import Header from './components/Header'
 import PageNotFound from './pages/PageNotFound'
 import ProductsPage from './pages/ProductsPage'
-import { ModalProvider } from './contextApi/ModalContext'
-import { SnackbarProvider } from './contextApi/SnackBarContext'
+import ModalProvider from './contextApi/ModalContext'
+import SnackbarProvider from './contextApi/SnackBarContext'
 import AuthProvider, { useAuth } from './contextApi/AuthContext'
 import LoadingSpinner from './components/ui/UiLoadingSpinner'
+import CartProvider from './contextApi/CartContext'
 
 const AppContent: React.FC = () => {
   const { loading } = useAuth()
@@ -36,13 +37,15 @@ const AppContent: React.FC = () => {
 function App() {
   return (
     <AuthProvider>
-      <SnackbarProvider>
-        <ModalProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </ModalProvider>
-      </SnackbarProvider>
+      <CartProvider>
+        <SnackbarProvider>
+          <ModalProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </ModalProvider>
+        </SnackbarProvider>
+      </CartProvider>
     </AuthProvider>
   )
 }

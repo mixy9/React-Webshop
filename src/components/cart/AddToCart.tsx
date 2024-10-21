@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC } from 'react'
 import { Product } from '../../types/General'
 import { useSnackbar } from '../../contextApi/SnackBarContext'
 import { ShoppingCartIcon } from '@heroicons/react/24/outline'
@@ -6,6 +6,7 @@ import UiButton from '../ui/UiButton'
 import { useAuth } from '../../contextApi/AuthContext'
 import Login from '../LogIn'
 import { useModal } from '../../contextApi/ModalContext'
+import { useCart } from '../../contextApi/CartContext'
 
 type Props = {
   product: Product
@@ -13,25 +14,16 @@ type Props = {
 
 const AddToCart: FC<Props> = ({ product }: Props) => {
   const { showSnackbar } = useSnackbar()
-  const [cartItems, setCartItems] = useState<Product[]>([])
   const { user } = useAuth()
   const { openModal } = useModal()
+  const { addToCart, isInCart } = useCart()
 
-  useEffect(() => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]') as Product[]
-    setCartItems(cart)
-  }, [])
-
-  const existingItem = cartItems?.find(
-    (item: Product) => item?.id === product?.id
-  )
+  const existingItem = isInCart(product.id)
 
   function openLoginModal() {
     openModal(<Login />, '', 'center')
   }
 
-  // can also be implemented using the Context API in this case to track the addition of items to the cart, monitor
-  // the state of the button, or add a badge displaying the number of items in the cart
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
 
@@ -40,34 +32,22 @@ const AddToCart: FC<Props> = ({ product }: Props) => {
       return
     }
 
-    const currentCart = JSON.parse(
-      localStorage.getItem('cart') || '[]'
-    ) as Product[]
-
-    const existingItemInCart = currentCart.find(
-      (item: Product) => item.id === product.id
-    )
-
-    if (existingItemInCart) {
+    if (existingItem) {
+      showSnackbar('Item already added to cart', 'success')
       return
     }
 
-    const updatedCart = [
-      ...currentCart,
-      {
-        ...product,
-        userId: user?.id,
-      },
-    ]
+    const productToAdd = {
+      ...product,
+      userId: user?.id,
+    }
 
-    setCartItems(updatedCart)
-    localStorage.setItem('cart', JSON.stringify(updatedCart))
-
+    addToCart(productToAdd)
     showSnackbar('Item added to cart', 'success')
   }
 
   return (
-    <UiButton clickEvent={handleAddToCart} isDisabled={!!existingItem}>
+    <UiButton clickEvent={handleAddToCart} isDisabled={existingItem}>
       <ShoppingCartIcon aria-hidden="true" className="h-6 w-6 text-white" />
     </UiButton>
   )

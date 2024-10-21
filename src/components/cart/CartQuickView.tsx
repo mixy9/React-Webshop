@@ -1,29 +1,21 @@
-import { Product } from '../../types/General'
 import { useSnackbar } from '../../contextApi/SnackBarContext'
-import { useEffect, useState } from 'react'
-import CartItem from './CartItem'
 import { useAuth } from '../../contextApi/AuthContext'
+import { useCart } from '../../contextApi/CartContext'
+import CartItem from './CartItem'
+import React from 'react'
 
-// TODO: add ellipsis to text - global class (use on product items)
 export default function CartQuickView() {
   const { showSnackbar } = useSnackbar()
-  const [cartItems, setCartItems] = useState<Product[] | null>(null)
-
   const { user } = useAuth()
+  const { cartItems, removeFromCart } = useCart()
 
-  useEffect(() => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]') as Product[]
-    setCartItems(cart.filter((cartItems) => cartItems.userId === user?.id))
-  }, [])
+  // Filter cart items based on the current user
+  const userCartItems = user
+    ? cartItems.filter((item) => item.userId === user.id)
+    : []
 
-  function removeFromCart(productId: Product['id']) {
-    const updatedCartItems =
-      cartItems?.filter((item: Product) => item.id !== productId) || []
-
-    localStorage.setItem('cart', JSON.stringify(updatedCartItems))
-
-    setCartItems(updatedCartItems)
-
+  function handleRemoveFromCart(productId: number) {
+    removeFromCart(productId)
     showSnackbar('Item removed from cart successfully!', 'success')
   }
 
@@ -31,12 +23,12 @@ export default function CartQuickView() {
     <div className="mt-8 overflow-auto h-[85vh]">
       <div className="flow-root">
         <ul role="list" className="-my-6 divide-y divide-gray-200">
-          {cartItems && cartItems.length > 0 ? (
-            cartItems.map((product: Product) => (
+          {userCartItems && userCartItems.length > 0 ? (
+            userCartItems.map((product) => (
               <CartItem
                 key={product.id}
                 product={product}
-                removeFromCart={removeFromCart}
+                removeFromCart={handleRemoveFromCart}
               />
             ))
           ) : (

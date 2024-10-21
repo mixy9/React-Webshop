@@ -7,6 +7,8 @@ import { useAuth } from '../contextApi/AuthContext'
 import UiButton from './ui/UiButton'
 import UserInfoDropdown from './UserInfoDropdown'
 import CartQuickView from './cart/CartQuickView'
+import { useCart } from '../contextApi/CartContext'
+import UiBadge from './ui/UiBadge'
 
 const navigation = [
   { name: 'Products', route: '/products' },
@@ -19,6 +21,7 @@ export default function Header() {
   const location = useLocation()
 
   const { user } = useAuth()
+  const { cartCount } = useCart()
 
   const isHomepage = location.pathname === '/'
 
@@ -69,11 +72,20 @@ export default function Header() {
         <div className="hidden lg:flex lg:flex-1 lg:justify-end divide-x">
           {user ? (
             <>
-              <button type="button" onClick={openCartPreview}>
+              <button
+                type="button"
+                className="relative"
+                onClick={openCartPreview}
+              >
                 <ShoppingCartIcon
                   aria-hidden="true"
                   className="h-6 w-6 text-gray-500 hover:text-cyan-600 mx-4"
                 />
+                {cartCount > 0 && (
+                  <UiBadge
+                    count={cartCount > 9 ? '9+' : cartCount.toString()}
+                  />
+                )}
               </button>
               <UserInfoDropdown />
             </>

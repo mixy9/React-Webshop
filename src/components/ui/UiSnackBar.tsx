@@ -8,23 +8,23 @@ import {
   XCircleIcon,
 } from '@heroicons/react/24/outline'
 
-type SnackbarProps = {
+type UiSnackbarProps = {
   message: string
   type: SnackbarType
   isOpen: boolean
   setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
-const UiSnackbar: FC<SnackbarProps> = ({
+const UiSnackbar: FC<UiSnackbarProps> = ({
   message,
   type = 'success',
   isOpen,
-}: SnackbarProps) => {
+}: UiSnackbarProps) => {
   const typeStyles: Record<SnackbarType, string> = {
-    success: 'green',
-    danger: 'red',
-    warning: 'yellow',
-    info: 'blue',
+    success: 'text-green-700',
+    danger: 'text-red-700',
+    warning: 'text-yellow-700',
+    info: 'text-blue-700',
   }
 
   return (
@@ -39,7 +39,7 @@ const UiSnackbar: FC<SnackbarProps> = ({
         leaveTo="opacity-0 translate-y-2"
       >
         <div
-          className={`flex items-center p-4 rounded-lg shadow-md bg-white text-${typeStyles[type]}-700`}
+          className={`flex items-center p-4 rounded-lg shadow-md bg-white ${typeStyles[type]}`}
         >
           <div className="flex-1 flex gap-2 items-center">
             {type === 'success' && (

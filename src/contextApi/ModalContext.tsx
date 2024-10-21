@@ -22,7 +22,7 @@ type ModalContextProps = {
 
 const ModalContext = createContext<ModalContextProps | undefined>(undefined)
 
-export const ModalProvider: FC<{ children: ReactNode }> = ({ children }) => {
+const ModalProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [modalContent, setModalContent] = useState<ReactNode | null>(null)
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [modalTitle, setModalTitle] = useState<string | null>(null)
@@ -72,3 +72,5 @@ export const useModal = (): ModalContextProps => {
   }
   return context
 }
+
+export default ModalProvider

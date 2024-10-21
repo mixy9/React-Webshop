@@ -9,5 +9,6 @@ export async function fetchData<T>(
     return response.data
   } catch (error) {
     console.error(`Error fetching data from ${url}`, error)
+    throw error // Optional: Re-throw to allow higher-level handling
   }
 }

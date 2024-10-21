@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { FC, useState } from 'react'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 
@@ -16,11 +16,13 @@ type SortOption = {
   current: boolean
 }
 
-type Props = {
+type ProductSortingProps = {
   handleSortChange: (sort: string, order: string) => void
 }
 
-export default function ProductSorting({ handleSortChange }: Props) {
+const ProductSorting: FC<ProductSortingProps> = ({
+  handleSortChange,
+}: ProductSortingProps) => {
   const [sortBy, setSortBy] = useState<SortOption | null>(null)
 
   const handleChange = (option: SortOption) => {
@@ -62,3 +64,5 @@ export default function ProductSorting({ handleSortChange }: Props) {
     </Menu>
   )
 }
+
+export default ProductSorting

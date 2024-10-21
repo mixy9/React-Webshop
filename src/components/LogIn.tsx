@@ -1,24 +1,49 @@
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useState, FocusEvent } from 'react'
 import { useAuth } from '../contextApi/AuthContext'
 import { useModal } from '../contextApi/ModalContext'
 import UiButton from './ui/UiButton'
+import { useSnackbar } from '../contextApi/SnackBarContext'
+import { AxiosError } from 'axios'
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [usernameError, setUsernameError] = useState<string | null>(null)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+
   const { login } = useAuth()
   const { closeModal } = useModal()
+  const { showSnackbar } = useSnackbar()
+
+  // triggers when an element loses focus
+  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+    if (e.target.name === 'username' && !username) {
+      setUsernameError('Username is required')
+    }
+
+    if (e.target.name === 'password' && !password) {
+      setPasswordError('Password is required')
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    try {
-      await login(username, password)
-    } catch (err) {
-      setError('Login failed. Please check your credentials.')
+
+    if (!username.length || !password.length) {
+      if (!username) setUsernameError('Username is required')
+      if (!password) setPasswordError('Password is required')
+      return
     }
 
-    closeModal()
+    try {
+      await login(username, password)
+      closeModal()
+    } catch (err) {
+      const axiosError = err as AxiosError<{ message: string }>
+      setError(axiosError.response?.data?.message || 'Login failed')
+      showSnackbar('Log In failed', 'danger')
+    }
   }
 
   return (
@@ -43,15 +68,19 @@ const Login: React.FC = () => {
               <input
                 id="username"
                 name="username"
-                type="username"
+                type="text"
                 value={username}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setUsername(e.target.value)
                 }
+                onBlur={handleBlur}
                 required
                 autoComplete="username"
                 className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6"
               />
+              {usernameError && !username.length && (
+                <p className="text-red-600 text-sm mt-1">{usernameError}</p>
+              )}
             </div>
           </div>
 
@@ -81,10 +110,14 @@ const Login: React.FC = () => {
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setPassword(e.target.value)
                 }
+                onBlur={handleBlur}
                 required
                 autoComplete="current-password"
                 className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-cyan-600 sm:text-sm sm:leading-6"
               />
+              {passwordError && !password.length && (
+                <p className="text-red-600 text-sm mt-1">{passwordError}</p>
+              )}
             </div>
           </div>
 
@@ -94,7 +127,10 @@ const Login: React.FC = () => {
             </UiButton>
           </div>
         </form>
-        {error && <p>{error}</p>}
+
+        {error && (
+          <p className="text-red-600 text-sm mt-4 text-center">{error}</p>
+        )}
 
         <p className="mt-10 text-center text-sm text-gray-500">
           Not a member?{' '}

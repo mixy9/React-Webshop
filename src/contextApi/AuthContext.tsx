@@ -1,9 +1,10 @@
-import React, {
+import {
   createContext,
   useState,
   useEffect,
   ReactNode,
   useContext,
+  FC,
 } from 'react'
 import { getCurrentUser, login, logout } from '../service/authService'
 import { User } from '../types/General'
@@ -18,13 +19,9 @@ type AuthContextType = {
   loading: boolean
 }
 
-type Props = {
-  children: ReactNode
-}
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const AuthProvider: React.FC<Props> = ({ children }) => {
+const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
 

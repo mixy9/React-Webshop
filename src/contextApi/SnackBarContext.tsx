@@ -21,7 +21,7 @@ const SnackbarContext = createContext<SnackbarContextProps | undefined>(
   undefined
 )
 
-export const SnackbarProvider: FC<{ children: ReactNode }> = ({ children }) => {
+const SnackbarProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [message, setMessage] = useState<string>('')
   const [type, setType] = useState<SnackbarType>('success')
@@ -68,3 +68,5 @@ export const useSnackbar = (): SnackbarContextProps => {
   }
   return context
 }
+
+export default SnackbarProvider

@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function ProductItemSkeleton() {
+const ProductItemSkeleton = () => {
   return (
     <div className="animate-pulse">
       <div className="group text-left">
@@ -15,3 +15,5 @@ export default function ProductItemSkeleton() {
     </div>
   )
 }
+
+export default ProductItemSkeleton
